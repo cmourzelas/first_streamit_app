@@ -12,6 +12,11 @@ streamlit.text('🐔 Hard-Boiled Free-Range Egg')
 streamlit.text('🥑🍞 Avocado Toast')
 streamlit.header('🍌🥭 Build Your Own Fruit Smoothie 🥝🍇')
 
+def get_fruit_load_list():
+    with my_cnx.cursor() as my_cur:
+        my_cur.execute("SELECT * from fruit_load_list")
+        return my_cur.fetchall()
+
 
 def get_fruitvice_data(this_fruit_voice):
     fruityvice_response = requests.get("https://fruityvice.com/api/fruit/"+this_fruit_voice)
@@ -44,14 +49,11 @@ try:
 except URLError as e:
   streamlit.error()
   
-streamlit.stop()
-
-my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
-my_cur = my_cnx.cursor()
-my_cur.execute("SELECT * from fruit_load_list")
-my_data_row = my_cur.fetchall()
-streamlit.header("The fruit load list contains:")
-streamlit.dataframe(my_data_row)
+if streamlit.Button('Get fruit load list'):
+    my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+    my_data_row = get_fruit_load_list
+    streamlit.header("The fruit load list contains:")
+    streamlit.dataframe(my_data_row)
 
 add_my_fruit = streamlit.text_input('What fruit would you like to add t?','jackfruit')
 streamlit.write('Thanks for adding ', add_my_fruit)
